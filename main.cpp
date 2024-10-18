@@ -1734,7 +1734,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	};
 
 
-
 	//float *inputMaterial[3] = { &materialDate->x,&materialDate->y,&materialDate->z };
 	//float* inputTransform[3] = { &transform.translate.x,&transform.translate.y,&transform.translate.z };
 	//float* inputRotate[3] = { &transform.rotate.x,&transform.rotate.y,&transform.rotate.z };
