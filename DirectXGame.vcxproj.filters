@@ -84,10 +84,10 @@
     <None Include="resources\shaders\Object3d.hlsli">
       <Filter>リソース ファイル</Filter>
     </None>
+    <None Include=".gitignore" />
     <None Include="Particle.hlsli">
       <Filter>パーティクル</Filter>
     </None>
-    <None Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
