@@ -16,6 +16,9 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{ea3dc832-225e-4ab4-9f24-a2e3835b4c91}</UniqueIdentifier>
     </Filter>
+    <Filter Include="パーティクル">
+      <UniqueIdentifier>{2f027381-e7df-443d-9c88-756ef5dbb3a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -78,10 +81,13 @@
   <ItemGroup>
     <None Include="externals\imgui\.editorconfig" />
     <None Include="externals\imgui\.gitattributes" />
-    <None Include="externals\imgui\.gitignore" />
     <None Include="resources\shaders\Object3d.hlsli">
       <Filter>リソース ファイル</Filter>
     </None>
+    <None Include="Particle.hlsli">
+      <Filter>パーティクル</Filter>
+    </None>
+    <None Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
@@ -92,6 +98,12 @@
     </FxCompile>
     <FxCompile Include="resources\shaders\Object3d.VS.hlsl">
       <Filter>リソース ファイル</Filter>
+    </FxCompile>
+    <FxCompile Include="particle.PS.hlsl">
+      <Filter>パーティクル</Filter>
+    </FxCompile>
+    <FxCompile Include="particle.VS.hlsl">
+      <Filter>パーティクル</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

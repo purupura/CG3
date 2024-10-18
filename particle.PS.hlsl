@@ -1,4 +1,4 @@
-#include "Object3d.hlsli"
+#include "Particle.hlsli"
 
 struct Material
 {
@@ -34,14 +34,6 @@ PixelShaderOutput main(VertexShaderOutput input)
     float32_t4 textureColor = gTexture.Sample(gSampler, transformdUV.xy);
     
     PixelShaderOutput output;
-    float32_t4 transformedUV=mul(float32_t4(input.texcoord,0.0f,1.0f),gMaterial.uvTransform);
-    float32_t4 textureColor=gTexture.Sample(gSampler,transformedUV.xy)
-    output.color=gMaterial.Color*textureColor;
-    if(output.color.a==0.0){
-    discard
-    }
-    return output
-
     
     if (gMaterial.enableLighting != 0)
     {
@@ -52,9 +44,6 @@ PixelShaderOutput main(VertexShaderOutput input)
     else
     {
         output.color = gMaterial.color * textureColor;
-            if(output.color.a==0.0){
-            discard;
-      }
     }
 
     return output;
