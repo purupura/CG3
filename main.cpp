@@ -1701,7 +1701,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	directionalLightSphereResource->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightSphereData));
 	//色の設定
 	directionalLightSphereData->color = { 1.0f,1.0f,1.0f,1.0f };
-	directionalLightSphereData->direction = { 0.0f,-1.0f,0.0f };
+	directionalLightSphereData->direction = { 0.0f,0.0f,-1.0f };
 	directionalLightSphereData->intensity = 1.0f;
 
 
