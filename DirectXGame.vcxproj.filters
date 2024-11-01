@@ -86,7 +86,7 @@
     </None>
     <None Include=".gitignore" />
     <None Include="Particle.hlsli">
-      <Filter>パーティクル</Filter>
+      <Filter>ソース ファイル</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -100,10 +100,10 @@
       <Filter>リソース ファイル</Filter>
     </FxCompile>
     <FxCompile Include="particle.PS.hlsl">
-      <Filter>パーティクル</Filter>
+      <Filter>ソース ファイル</Filter>
     </FxCompile>
     <FxCompile Include="particle.VS.hlsl">
-      <Filter>パーティクル</Filter>
+      <Filter>ソース ファイル</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
