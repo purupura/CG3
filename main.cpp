@@ -610,6 +610,12 @@ VertexData AddVert(const VertexData& v1, const VertexData& v2) {
 	return result;
 }
 
+struct Particle
+{
+	Transform transform;
+	Vector3 velocity;
+};
+
 void DrawSphere(VertexData* vertexDataSphere) {
 
 	const uint32_t kSubdivision = 16;
@@ -1038,7 +1044,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	HWND hwnd = CreateWindow(
 		wc.lpszClassName,
-		L"CG3",
+		L"LE2D_06_カラサワ_ミクム",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
@@ -2215,9 +2221,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//リソースリークチェック
 	IDXGIDebug1* debug;
 	if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
-		debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
-		debug->ReportLiveObjects(DXGI_DEBUG_APP, DXGI_DEBUG_RLO_ALL);
-		debug->ReportLiveObjects(DXGI_DEBUG_D3D12, DXGI_DEBUG_RLO_ALL);
+
 		debug->Release();
 	}
 
