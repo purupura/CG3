@@ -9,10 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="リソース ファイル">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="imgui">
       <UniqueIdentifier>{ea3dc832-225e-4ab4-9f24-a2e3835b4c91}</UniqueIdentifier>
     </Filter>
@@ -40,6 +36,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,24 +73,27 @@
     <ClInclude Include="resource.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Matrix.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="externals\imgui\.editorconfig" />
     <None Include="externals\imgui\.gitattributes" />
     <None Include="externals\imgui\.gitignore" />
-    <None Include="resources\shaders\Object3d.hlsli">
-      <Filter>リソース ファイル</Filter>
+    <None Include="Object3d.hlsli">
+      <Filter>ソース ファイル</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="resources\shaders\Object3d.PS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="Object3d.PS.hlsl">
+      <Filter>ソース ファイル</Filter>
     </FxCompile>
-    <FxCompile Include="resources\shaders\Object3d.VS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="Object3d.VS.hlsl">
+      <Filter>ソース ファイル</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
