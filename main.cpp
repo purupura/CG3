@@ -54,6 +54,10 @@ Vector3 changeVec3(Vector4 a)
 //	float m[4][4];
 //};
 
+struct CameraForGPU
+{
+	Vector3 worldPosition;
+};
 
 
 struct VertexData {
@@ -390,7 +394,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	HWND hwnd = CreateWindow(
 		wc.lpszClassName,		//利用するクラス名
-		L"CG2",					//タイトルバーの文字（なんでもいい)
+		L"CG3",					//タイトルバーの文字（なんでもいい)
 		WS_OVERLAPPEDWINDOW,	//よく見るウィンドウスタイル
 		CW_USEDEFAULT,			//表示X座標
 		CW_USEDEFAULT,			//表示Y座標
@@ -621,20 +625,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 	//RootParameter作成、複数設定ができるまで配列。今回は一つだけなので長さ１の配列
-	D3D12_ROOT_PARAMETER rootParameters[4] = {};
+	D3D12_ROOT_PARAMETER rootParameters[5] = {};
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを作る
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderを使う
 	rootParameters[0].Descriptor.ShaderRegister = 0;//レジスタ番号θとバインド
+	
 	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを作る
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;//VertexDhaderを使う
 	rootParameters[1].Descriptor.ShaderRegister = 0;//レジスタ番号θとバインド
+	
 	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;//DescriporTableを使う
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
 	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;//Tableの中身を配列を指定
 	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);//Tableの中身を配列を指定
+	
 	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
 	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixcelShaderで使う
 	rootParameters[3].Descriptor.ShaderRegister = 1;//レジスタ番号１
+
+	// ルートパラメータに追加
+	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;  // CBVを使う
+	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;  // PixelShaderで使う
+	rootParameters[4].Descriptor.ShaderRegister = 2;  // レジスタ番号2を使う
+
 	descriptorRootSignature.pParameters = rootParameters;//ルートパラメータ配列へのポインタ
 	descriptorRootSignature.NumParameters = _countof(rootParameters);//配列の長さ
 
@@ -907,6 +920,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	directionalLightData->color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	directionalLightData->direction = { 0.0f, -1.0f, 0.0f };
 	directionalLightData->intensity = 1.0f;
+
+	// カメラ用のリソースを作る。
+	ID3D12Resource* cameraResource = CreateBufferResource(device, sizeof(CameraForGPU));
+	// マテリアルにデータを書き込む 
+	CameraForGPU* cameraData = nullptr;
+	// 書き込むためのアドレスを取得 
+	cameraResource->Map(0, nullptr, reinterpret_cast<void**>(&cameraData));
+
+	cameraData->worldPosition = { 0.0f,4.0f,-10.0f };
 
 	const uint32_t descriptorSizeSRV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	const uint32_t descriptorSizeRTV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -1201,6 +1223,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
 			commandList->DrawInstanced(6, 1, 0, 0);
 
+			// cameraのCBufferの場所を設定
+			commandList->SetGraphicsRootConstantBufferView(4, cameraResource->GetGPUVirtualAddress());
+
 
 			//実際のcommandListのImGuiの描画コマンドを積む
 			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
@@ -1272,6 +1297,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	device->Release();
 	UseAdapter->Release();
 	dxgiFactory->Release();
+
+	cameraResource->Release();
 
 	directionalLightResource->Release();
 
