@@ -1,6 +1,8 @@
 #include "Matrix.h"
 #include <numbers>
 
+
+
 Matrix4x4 add(const Matrix4x4& m1, const Matrix4x4& m2)
 {
 	Matrix4x4 result;
@@ -301,22 +303,11 @@ Matrix4x4 MakePerspectiveFovMatrix(const float fovY, const float aspectRatio, co
 
 Matrix4x4 MakeOrthogphicMatrix(const float& left, const float& top, const float& right, const float& bottom, const float& nearClip, const float& farClip)
 {
-	Matrix4x4 result = { 0 };
-
-	result.m[0][0] = 2.0f / (right - left);
-
-	result.m[1][1] = 2.0f / (top - bottom);
-
-	result.m[2][2] = 1.0f / (farClip - nearClip);
-
-	result.m[3][0] = (left + right) / (left - right);
-
-	result.m[3][1] = (top + bottom) / (bottom - top);
-
-	result.m[3][2] = nearClip / (nearClip - farClip);
-
-	result.m[3][3] = 1.0f;
-
+	Matrix4x4 result;
+	result.m[0][0] = 2 / right; result.m[0][1] = 0;						result.m[0][2] = 0;						 result.m[0][3] = 0;
+	result.m[1][0] = 0;			result.m[1][1] = 2 / (top - bottom);		result.m[1][2] = 0;						 result.m[1][3] = 0;
+	result.m[2][0] = 0;			result.m[2][1] = 0;						result.m[2][2] = 1 / (farClip - nearClip); result.m[2][3] = 0;
+	result.m[3][0] = (left + right) / (left - right); result.m[3][1] = (top + bottom) / (bottom - top); result.m[3][2] = nearClip / (nearClip - farClip); result.m[3][3] = 1;
 	return result;
 }
 
@@ -340,3 +331,9 @@ Matrix4x4 MakeViewportMatrix(const float& left, const float& top, const float& w
 
 	return result;
 }
+struct Vector4 final {
+	float x;
+	float y;
+	float z;
+	float w;
+};

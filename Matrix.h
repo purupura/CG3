@@ -23,6 +23,8 @@ struct Transform
 	Vector3 translate;
 };
 
+Vector3 Normalize(const Vector3& v);
+
 Matrix4x4 add(const Matrix4x4& m1, const Matrix4x4& m2);
 
 

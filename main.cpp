@@ -25,6 +25,18 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #pragma comment(lib,"dxguid.lib")
 #pragma comment(lib,"dxcompiler.lib")
 
+float Dot(const Vector3& v1, const Vector3& v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z; }
+
+float Length(const Vector3& v) { return std::sqrt(Dot(v, v)); }
+
+Vector3 Normalize(const Vector3& v) {
+	float length = Length(v);
+	if (length == 0.0f) {
+		return v; // 長さが0の場合はゼロベクトルを返す
+	}
+	return { v.x / length, v.y / length, v.z / length };
+}
+
 struct Vector2
 {
 	float x;
@@ -49,6 +61,16 @@ Vector3 changeVec3(Vector4 a)
 	return result;
 }
 
+//struct Matrix4x4
+//{
+//	float m[4][4];
+//};
+
+struct CameraForGPU
+{
+	Vector3 worldPosition;
+};
+
 
 struct VertexData {
 	Vector4 position;
@@ -59,7 +81,7 @@ struct VertexData {
 struct Material {
 	Vector4 color;
 	int32_t enableLighting;
-	float shininess;
+	int32_t Shininess;
 };
 
 struct TransformationMatrix {
@@ -72,12 +94,6 @@ struct DirectrionaLight {
 	Vector3 direction; //!< ライトの向き
 	float intensity; //!< 輝度
 };
-
-struct CameraForGPU
-{
-	Vector3 worldPosition;
-};
-
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -370,7 +386,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//ウィンドウプロシージャ
 	wc.lpfnWndProc = WindowProc;
 	//ウィンドウクラス名
-	wc.lpszClassName = L"CG2WindowClass";
+	wc.lpszClassName = L"CG3WindowClass";
 	//インスタンスハンドル
 	wc.hInstance = GetModuleHandle(nullptr);
 	//カーソル
@@ -391,7 +407,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	HWND hwnd = CreateWindow(
 		wc.lpszClassName,		//利用するクラス名
-		L"CG2",					//タイトルバーの文字（なんでもいい)
+		L"CG3",					//タイトルバーの文字（なんでもいい)
 		WS_OVERLAPPEDWINDOW,	//よく見るウィンドウスタイル
 		CW_USEDEFAULT,			//表示X座標
 		CW_USEDEFAULT,			//表示Y座標
@@ -626,17 +642,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを作る
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderを使う
 	rootParameters[0].Descriptor.ShaderRegister = 0;//レジスタ番号θとバインド
+
 	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを作る
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;//VertexDhaderを使う
 	rootParameters[1].Descriptor.ShaderRegister = 0;//レジスタ番号θとバインド
+
 	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;//DescriporTableを使う
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
 	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;//Tableの中身を配列を指定
 	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);//Tableの中身を配列を指定
+
 	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
 	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixcelShaderで使う
 	rootParameters[3].Descriptor.ShaderRegister = 1;//レジスタ番号１
-	
+
 	// ルートパラメータに追加
 	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;  // CBVを使う
 	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;  // PixelShaderで使う
@@ -755,7 +774,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//今回は赤を書き込んでみる
 	materialDate->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	materialDate->enableLighting = true;
-	materialDate->shininess = 70;
+
 	//頂点バッファビューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
 	//リソースの先頭のアドレスから使う
@@ -871,6 +890,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	materialResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&materialDateSprite));
 	materialDateSprite->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	materialDateSprite->enableLighting = false;
+	materialDateSprite->Shininess = 70;
 
 	//頂点バッファビューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewSprite{};
@@ -923,7 +943,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	cameraResource->Map(0, nullptr, reinterpret_cast<void**>(&cameraData));
 
 	cameraData->worldPosition = { 0.0f,4.0f,-10.0f };
-
 
 	const uint32_t descriptorSizeSRV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	const uint32_t descriptorSizeRTV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -1010,7 +1029,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	Transform transform{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 	Transform cameraTransform{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 10.0f} };
-	Transform transformSprite{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 4.0f, 0.0f} };
+	Transform transformSprite{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 
 	float TransformUi[3][3];
 
@@ -1048,11 +1067,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 		else
 		{
-			//ゲームの処理
 
-			ImGui_ImplDX12_NewFrame();
-			ImGui_ImplWin32_NewFrame();
-			ImGui::NewFrame();
+	
 
 
 			//transform.rotate.y += 0.03f;
@@ -1080,6 +1096,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			LightIntensity = directionalLightData->intensity;
 
+			
+
+			//ゲームの処理
+
+			ImGui_ImplDX12_NewFrame();
+			ImGui_ImplWin32_NewFrame();
+			ImGui::NewFrame();
+			ImGui::Begin("Setting");
 			// X、Y、Zの位置をスライダーで変更
 			ImGui::SliderFloat("X Position", &transform.rotate.x, -10.0f, 10.0f);
 			ImGui::SliderFloat("Y Position", &transform.rotate.y, -10.0f, 10.0f);
@@ -1094,7 +1118,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			ImGui::DragFloat4("LightColor", LightColor, 0.01f, 1.0f);
 			ImGui::DragFloat3("LightDirection", LightDirection, 0.01f, 1.0f);
 			ImGui::DragFloat("LightIntensity", &LightIntensity, 0.01f, 1.0f);
-
+			ImGui::DragFloat3("LightIntensity", &directionalLightData->direction.x, 0.01f, 1.0f);
+			ImGui::End();
+			
+			
 
 			transformSprite.scale.x = TransformUi[0][0];
 			transformSprite.scale.y = TransformUi[0][1];
@@ -1119,7 +1146,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			directionalLightData->intensity = LightIntensity;
 
-
+			directionalLightData->direction = Normalize(directionalLightData->direction);
 			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 			Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
 			Matrix4x4 viewMatrix = Inverse(cameraMatrix);
@@ -1205,7 +1232,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//======================
 			commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
 			//======================
-
+			commandList->SetGraphicsRootConstantBufferView(4, cameraResource->GetGPUVirtualAddress());
 			commandList->DrawInstanced(vertexCount, 1, 0, 0);
 
 			commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);//VBVを設定
@@ -1216,9 +1243,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 			commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
-			commandList->DrawInstanced(6, 1, 0, 0);
+		
+
 			// cameraのCBufferの場所を設定
 			commandList->SetGraphicsRootConstantBufferView(4, cameraResource->GetGPUVirtualAddress());
+
 
 			//実際のcommandListのImGuiの描画コマンドを積む
 			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
@@ -1290,7 +1319,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	device->Release();
 	UseAdapter->Release();
 	dxgiFactory->Release();
+
 	cameraResource->Release();
+
 	directionalLightResource->Release();
 
 	depthStencilResource->Release();

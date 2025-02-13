@@ -43,7 +43,7 @@ PixcelShaderOutput main(VertexShaderOutput input)
         float32_t3 reflectLight = reflect(-gDirectrionaLight.direction, normalize(input.normal));
 
         float RdotE = dot(reflectLight, toEye);
-        float specularPow = pow(saturate(RdotE), gMaterial.shininess); // 反射強度  
+        float specularPow = pow(saturate(RdotE), 70); // 反射強度  
         float NdotL = dot(normalize(input.normal), -gDirectrionaLight.direction);
         float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
 
@@ -57,6 +57,7 @@ PixcelShaderOutput main(VertexShaderOutput input)
         
         //拡散反射・鏡面反射
         output.color.rgb = diffuse + specular;
+
         //アルファは今まで通り
         output.color.a = gMaterial.color.a * textureColor.a;
    
